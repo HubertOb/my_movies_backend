@@ -24,4 +24,5 @@ public class MovieService {
     public Movie addMovie(Movie movie) {
         return movieRepository.save(movie);
     }
+
 }

@@ -7,10 +7,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -34,16 +37,24 @@ public class MovieController {
     }
 
     @GetMapping("/{id}/poster")
-    public ResponseEntity<Resource> getStaticImage(@PathVariable int id) {
+    public ResponseEntity<byte[]> getImageFromDatabase(@PathVariable int id) {
         try {
-            Resource resource = new ClassPathResource("imageska.jpg");
+            Optional<Movie> movieOptional = movieService.getMovieById(id);
 
-            if (resource.exists()) {
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
+            if (movieOptional.isPresent()) {
+                Movie movie = movieOptional.get();
+                byte[] imageBytes = movie.getPoster_img(); // Pobranie obrazu z obiektu `Movie`
+
+                if (imageBytes != null && imageBytes.length > 0) {
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"poster_" + id + ".jpg\"")
+                            .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
+                            .body(imageBytes);
+                } else {
+                    return ResponseEntity.notFound().build(); // Jeśli obraz jest pusty
+                }
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.notFound().build(); // Jeśli film o podanym ID nie istnieje
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -52,9 +63,15 @@ public class MovieController {
 
 
     @PostMapping
-    public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
-        System.out.println(movie);
-        Movie savedMovie=movieService.addMovie(movie);
+    public ResponseEntity<Movie> addMovie(
+            @RequestParam("title") String title,
+            @RequestParam("movie_year") int movieYear,
+            @RequestParam("movie_path") String moviePath,
+            @RequestParam("poster_image") MultipartFile posterImage) throws IOException {
+
+        byte[] posterBytes = posterImage.getBytes();
+        Movie movie = new Movie(title, movieYear, moviePath, posterBytes);
+        Movie savedMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
 }
