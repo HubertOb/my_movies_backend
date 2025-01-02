@@ -11,7 +11,6 @@ public class Movie {
 
     private String title;
     private int movie_year;
-//    private String poster_path;
     private String movie_path;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
@@ -22,7 +21,6 @@ public class Movie {
     public Movie(String title, int movie_year, String movie_path, byte[] poster_img) {
         this.title = title;
         this.movie_year = movie_year;
-//        this.poster_path = poster_path;
         this.movie_path = movie_path;
         this.poster_img = poster_img;
     }
@@ -55,14 +53,6 @@ public class Movie {
     public void setMovie_year(int movie_year) {
         this.movie_year = movie_year;
     }
-
-//    public String getPoster_path() {
-//        return poster_path;
-//    }
-
-//    public void setPoster_path(String poster_path) {
-//        this.poster_path = poster_path;
-//    }
 
     public String getMovie_path() {
         return movie_path;

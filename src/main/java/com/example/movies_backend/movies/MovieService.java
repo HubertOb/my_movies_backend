@@ -10,7 +10,7 @@ public class MovieService {
     private final MovieRepository movieRepository;
 
     public MovieService(MovieRepository movieRepository) {
-        this.movieRepository=movieRepository;
+        this.movieRepository = movieRepository;
     }
 
     public List<Movie> getAllMovies() {
@@ -25,4 +25,11 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
+    public int getMovieTitleCount(String title) {
+        return movieRepository.countByTitle(title);
+    }
+
+    public String getMoviePath(int id){
+        return movieRepository.getMoviePath(id);
+    }
 }
